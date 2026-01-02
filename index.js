@@ -45,7 +45,7 @@ app.post('/api/users', (req, res) => {
       user: { username, email, dateOfBirth }
     });
   } catch (error) {
-    if (error.message.includes('UNIQUE constraint')) {
+    if (error.code === 'UNIQUE_CONSTRAINT' || error.message.includes('UNIQUE constraint') || error.message.includes('Email already exists')) {
       return res.status(400).json({ error: 'Email already exists' });
     }
     console.error('Error adding user:', error);
