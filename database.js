@@ -16,8 +16,18 @@ db.exec(`
 
 // Function to add a new user
 function addUser(username, email, dateOfBirth) {
-  const stmt = db.prepare('INSERT INTO users (username, email, date_of_birth) VALUES (?, ?, ?)');
-  return stmt.run(username, email, dateOfBirth);
+  try {
+    const stmt = db.prepare('INSERT INTO users (username, email, date_of_birth) VALUES (?, ?, ?)');
+    return stmt.run(username, email, dateOfBirth);
+  } catch (error) {
+    // Re-throw with more context
+    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE' || error.message.includes('UNIQUE constraint')) {
+      const dbError = new Error('Email already exists');
+      dbError.code = 'UNIQUE_CONSTRAINT';
+      throw dbError;
+    }
+    throw error;
+  }
 }
 
 // Function to get users with birthdays today
